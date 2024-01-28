@@ -1,5 +1,6 @@
 install.packages("baseballr")
 install.packages("devtools")
+install.packages("scales")
 devtools::install_github("rstudio/gridlayout", force = TRUE)
 
 
@@ -93,11 +94,21 @@ kharrison_24 %>%
   xlim(-2, 2) + ylim(0, 5)
 
 
-
-
-
-
-
+#velo freq graph.
+  kharrison_24 %>%
+    ggplot(aes(x = release_speed), fill = pitch_type)+
+    stat_density(alpha = .75)+
+    scale_fill_brewer(palette = "Dark2")+
+    ggtitle("Velocity by Pitch Frequency")+
+    xlab("Velocity in MPH") + ylab("Frequency")+
+    theme(legend.position = "none",
+          panel.spacing = unit(.75, "lines"),
+          plot.title = element_text(color = 'black', size = 16, face = "bold", hjust = 0.5),
+          axis.title.x = element_text(color = 'black', size = 14, face = "bold", hjust = 0.5),
+          axis.title.y = element_text(color = 'black', size = 14, face = "bold", hjust = 0.5),
+          axis.text = element_text(size = 12),
+          strip.text = element_text(size = 9, face = "bold"))+
+    facet_grid(pitch_type ~ .)
 
 
 
