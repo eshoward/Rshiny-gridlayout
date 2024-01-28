@@ -4,6 +4,13 @@ library(ggplot2)
 library(gt)
 library(dplyr)
 library(bslib)
+library(baseballr)
+
+my_layout <- new_gridlayout("
+                            |    |.5fr    |1fr     |
+                            |80px|header  |choices |
+                            |1fr |velo    |velo    |
+                            |1fr |fb_sz   |off_sz  |")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
