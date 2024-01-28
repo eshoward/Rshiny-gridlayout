@@ -10,7 +10,7 @@ library(gridExtra)
 library(grid)
 
 my_layout <- new_gridlayout("
-                            |    |.5fr    |1fr     |1fr   |1fr    |
+                            |    |1fr    |1fr     |1fr   |1fr    |
                             |80px|header  |header  |header  |NULL   |
                             |1fr |velo    |velo    |velo  |table  |
                             |1fr |fb_sz   |sv_sz   |sl_sz |ch_sz  |")
@@ -37,7 +37,15 @@ ui = grid_page(
         card_body(
           gt_output("veloTable")
         )
-  ),
+    ),
+  
+  #plot of fb sz for the fb_sz location
+  grid_card(
+    "fb_sz",
+    card_body(
+      grid_card_plot("fbStrikezone")
+    )
+  ), 
   
   flag_mismatches = FALSE
   ),
@@ -88,5 +96,57 @@ server = function(input, output) {
     },
     height = "100%",
     width = "100%")
+  
+  #creating fb sz plot
+  output$fbStrikezone <- renderPlot({
+    kharrison_24 %>%
+      filter(pitch_type == "Fastball") %>%
+      ggplot(kharrison_24, mapping = aes(x = plate_x * -1, y = plate_z))+
+      geom_point(aes(color = pitch_type), size = 2)+
+      scale_color_brewer(palette = "Dark2")+
+      
+      #creating the outer limits of strike zone
+      geom_segment(x = (-11.5/12)+.25, y = (44.08/12), xend = (5.5/12)+.25, yend = (44.08/12)) +
+      geom_segment(x = (-11.5/12)+.25, y = (18.29/12), xend = (5.5/12)+.25, yend = (18.29/12)) +
+      geom_segment(x = (-11.5/12)+.25, y = (44.08/12), xend = (-11.5/12)+.25, yend = (18.29/12)) +
+      geom_segment(x = (5.5/12)+.25, y = (44.08/12), xend = (5.5/12)+.25, yend = (18.29/12))+
+      
+      #creating the inner quadrants of the strike zone
+      geom_segment(x = (-11.5/12)+.25, y = (35.48/12), xend = (-5.835/12)+.25, yend = (35.48/12), linewidth = .3) +
+      geom_segment(x = (-5.835/12)+.25, y = (35.48/12), xend = (-0.165/12)+.25, yend = (35.48/12), linewidth = .3) +
+      geom_segment(x = (-0.165/12)+.25, y = (35.48/12), xend = (5.5/12)+.25, yend = (35.48/12), linewidth = .3) +
+      geom_segment(x = (-11.5/12)+.25, y = (26.88/12), xend = (-5.835/12)+.25, yend = (26.88/12), linewidth = .3) +
+      geom_segment(x = (-5.835/12)+.25, y = (26.88/12), xend = (-0.165/12)+.25, yend = (26.88/12), linewidth = .3) +
+      geom_segment(x = (-0.165/12)+.25, y = (26.88/12), xend = (5.5/12)+.25, yend = (26.88/12), linewidth = .3) +
+      geom_segment(x = (-5.835/12)+.25, y = (44.08/12), xend = (-5.835/12)+.25, yend = (35.48/12), linewidth = .3) +
+      geom_segment(x = (-5.835/12)+.25, y = (35.48/12), xend = (-5.835/12)+.25, yend = (26.88/12), linewidth = .3) +
+      geom_segment(x = (-5.835/12)+.25, y = (26.88/12), xend = (-5.835/12)+.25, yend = (18.29/12), linewidth = .3) +
+      geom_segment(x = (-0.165/12)+.25, y = (44.08/12), xend = (-0.165/12)+.25, yend = (35.48/12), linewidth = .3) +
+      geom_segment(x = (-0.165/12)+.25, y = (35.48/12), xend = (-0.165/12)+.25, yend = (26.88/12), linewidth = .3) +
+      geom_segment(x = (-0.165/12)+.25, y = (26.88/12), xend = (-0.165/12)+.25, yend = (18.29/12), linewidth = .3)+
+      
+      #creating home plate
+      geom_segment(x = (-.708 -(2/12))+.25, y = (.708/2), xend = (0-(3/12))+.25, yend = (1.417/2.5)) +
+      geom_segment(x = (0-(3/12))+.25, y = (1.417/2.5), xend = (.708-(4/12))+.25, yend = (.708/2)) +
+      geom_segment(x = (.708-(4/12))+.25, y = (.708/2), xend = (.708-(3/12))+.25, yend = (0)) +
+      geom_segment(x = (-.708-(3/12))+.25, y = (0), xend = (-.708-(2/12))+.25, yend = (.708/2)) +
+      geom_segment(x = (-.708-(3/12))+.25, y = (0), xend = (.708-(3/12))+.25, yend = (0))+
+      
+      #adjusting details
+      ggtitle("Pitch Strike Zone Location")+ 
+      xlab("Distance in Feet") + ylab("Height in Feet") + 
+      labs(subtitle = "7 pitches missing due to X and Y limits")+
+      theme(legend.position = "none",
+            plot.title = element_text(color = 'black', size = 20, face = "bold", hjust = 0.5),
+            plot.subtitle = element_text(color = 'black', size = 13, hjust = .5),
+            axis.title.x = element_text(color = 'black', size = 16, face = "bold", hjust = 0.5),
+            axis.title.y = element_text(color = 'black', size = 16, face = "bold", hjust = 0.5),
+            axis.text = element_text(size = 14),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            panel.spacing = unit(3, "lines"))+
+      xlim(-2, 2) + ylim(0, 5)
+  })
   }
 )
