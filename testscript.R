@@ -97,7 +97,7 @@ kharrison_24 %>%
 #velo freq graph.
   kharrison_24 %>%
     ggplot(aes(x = release_speed), fill = pitch_type)+
-    stat_density(alpha = .75)+
+    stat_density(alpha = 0.75)+
     scale_fill_brewer(palette = "Dark2")+
     ggtitle("Velocity by Pitch Frequency")+
     xlab("Velocity in MPH") + ylab("Frequency")+

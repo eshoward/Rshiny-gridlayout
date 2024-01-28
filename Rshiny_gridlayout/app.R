@@ -19,13 +19,26 @@ my_layout <- new_gridlayout("
 shinyApp(
 ui = grid_page(
   layout = my_layout,
+  
+  #header
   grid_card_text("header", "Kyle Harrison 2024 Strike Zones"),
+  
+  #plot of the veloFreq for the velo location
   grid_card(
-    "velo",
-    card_body(
-      grid_card_plot("veloFreq")
-    )
+      "velo",
+        card_body(
+          grid_card_plot("veloFreq")
+        )
+    ),
+  
+  #plot of the veloTable for the table location
+  grid_card(
+      "table",
+        card_body(
+          gt_output("veloTable")
+        )
   ),
+  
   flag_mismatches = FALSE
   ),
 
@@ -50,7 +63,30 @@ server = function(input, output) {
             strip.text = element_text(size = 14, face = "bold"))+
       facet_grid(pitch_type ~ .)
     })
+  
+  #creating simple velo table
+  output$veloTable <- render_gt({
+      kharrison_24 %>%
+        group_by("Pitch Type" = pitch_type) %>%
+          summarise(
+            "Max Velo" = max(release_speed),
+            "Avg Velo" = mean(release_speed),
+            "Avg Spin Rate" = mean(release_spin_rate)
+          )%>%
+      gt()%>%
+      tab_header(
+        title = "Pitches Max/Avg Velo and Avg Spin Rate"
+        ) %>%
+      fmt_number(
+        columns = c("Avg Velo"),
+        decimals = 1
+      ) %>%
+      fmt_number(
+        columns = c("Avg Spin Rate"),
+        decimals = 0
+      )
+    },
+    height = "100%",
+    width = "100%")
   }
 )
-# Run the application 
-#shinyApp(ui = ui, server = server)
